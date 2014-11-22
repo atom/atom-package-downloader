@@ -1,3 +1,4 @@
+require 'es6-shim'
 fs = require 'fs'
 path = require 'path'
 child_process = require 'child_process'
