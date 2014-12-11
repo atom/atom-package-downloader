@@ -41,7 +41,8 @@ exports.clonePackages = (packages, packagesDirPath) ->
             console.error(error.message) if error?
             logProgress()
             callback()
-        else
+
+        else if pack.respository?.url?
           command = "git clone --depth=1 \"#{pack.repository.url}\" \"#{clonePath}\""
           child_process.exec command, (error) ->
             console.error(error.message) if error?
