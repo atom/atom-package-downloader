@@ -32,24 +32,28 @@ exports.clonePackages = (packages, packagesDirPath) ->
     console.log "#{++progress}/#{packages.length}"
 
   new Promise (resolve, reject) ->
-    async.eachLimit packages, 10,
+    async.eachLimit packages, 20,
       (pack, callback) ->
         clonePath = "#{packagesDirPath}/#{pack.name}"
-
         if fs.existsSync(clonePath)
           child_process.exec "git pull", cwd: clonePath, (error) ->
-            console.error(error.message) if error?
+            console.error(pack.name, error.message) if error?
             logProgress()
             callback()
 
-        else if pack.respository?.url?
+        else if pack.repository?.url?
           command = "git clone --depth=1 \"#{pack.repository.url}\" \"#{clonePath}\""
           child_process.exec command, (error) ->
-            console.error(error.message) if error?
+            console.error(pack.name, error.message) if error?
             logProgress()
             callback()
+        else
+          console.warn("Package '#{pack.name}' has no repository URL")
+          callback()
       (error) ->
         if error?
+          console.log 'error', error
           reject(error)
         else
+          console.log 'success'
           resolve()
