@@ -1,5 +1,6 @@
 require 'es6-shim'
 fs = require 'fs'
+URL = require 'url'
 path = require 'path'
 child_process = require 'child_process'
 request = require 'request'
@@ -28,28 +29,43 @@ exports.getMetadata = ->
 
 exports.clonePackages = (packages, packagesDirPath) ->
   progress = 0
-  logProgress = ->
-    console.log "#{++progress}/#{packages.length}"
 
   new Promise (resolve, reject) ->
-    async.eachLimit packages, 20,
+    async.eachLimit packages, 10,
       (pack, callback) ->
         clonePath = "#{packagesDirPath}/#{pack.name}"
-        if fs.existsSync(clonePath)
-          child_process.exec "git pull", cwd: clonePath, (error) ->
-            console.error(pack.name, error.message) if error?
-            logProgress()
+
+        done = ->
+          console.log "#{++progress}/#{packages.length} - #{pack.name}"
+          callback()
+
+        fs.exists clonePath, (exists) ->
+          if exists
+            fetch = child_process.spawn "git", ["fetch", "origin"], {cwd: clonePath, stdio: 'ignore'}
+            fetch.on 'error', (error) ->
+              console.error(pack.name, error.message)
+              done()
+            fetch.on 'exit', ->
+              reset = child_process.spawn "git", ["reset", "--hard", "origin/HEAD"], {cwd: clonePath, stdio: 'ignore'}
+              reset.on 'error', (error) ->
+                console.error(pack.name, error.message)
+                done()
+              reset.on 'exit', ->
+                done()
+
+          else if pack.repository?.url?
+            packageURL = URL.format(Object.assign(URL.parse(pack.repository.url), {auth: "some-user:some-password"}))
+            clone = child_process.spawn('git', ['clone', '--depth=1', packageURL, clonePath], {stdio: 'ignore'})
+            clone.on 'error', (error) ->
+              console.error(pack.name, error.message)
+              done()
+            clone.on 'exit', ->
+              done()
+
+          else
+            console.warn("Package '#{pack.name}' has no repository URL")
             callback()
 
-        else if pack.repository?.url?
-          command = "git clone --depth=1 \"#{pack.repository.url}\" \"#{clonePath}\""
-          child_process.exec command, (error) ->
-            console.error(pack.name, error.message) if error?
-            logProgress()
-            callback()
-        else
-          console.warn("Package '#{pack.name}' has no repository URL")
-          callback()
       (error) ->
         if error?
           console.log 'error', error
