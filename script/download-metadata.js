@@ -4,7 +4,7 @@ const fs = require('fs')
 const path = require('path')
 const async = require('async')
 const request = require('request')
-const util = require('./lib/util')
+const util = require('../lib/util')
 
 const NEXT_PAGE_URL_REGEX = /<([^>]+)>; rel="next"/
 const LAST_PAGE_URL_REGEX = /<([^>]+)>; rel="last"/

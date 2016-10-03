@@ -5,7 +5,7 @@ const url = require('url')
 const path = require('path')
 const async = require('async')
 const spawn = require('child_process').spawn
-const util = require('./lib/util')
+const util = require('../lib/util')
 
 const allPackages = require(util.metadataPath)
 let completedPackageCount = 0
