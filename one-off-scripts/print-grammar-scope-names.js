@@ -13,7 +13,7 @@ for (const grammarPath of grammarPaths) {
   try {
     const fileContent = fs.readFileSync(grammarPath)
     const content = grammarPath.endsWith('.cson') ? CSON.parse(fileContent) : JSON.parse(fileContent)
-    scopes = scopes.concat(getScopes(content, 0))
+    scopes = scopes.concat(getScopes(content))
   } catch (e) {
     console.error(`Skipping ${grammarPath}. Error: ${e}`)
   }
