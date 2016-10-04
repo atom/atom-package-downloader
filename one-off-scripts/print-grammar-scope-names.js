@@ -32,18 +32,18 @@ for (let scope of Array.from(new Set(scopes)).sort()) {
 console.log(currentRow.slice(0, -1))
 console.log(']')
 
-function getScopes (object, isPattern) {
-  const CSSClassNameRegExp = /^[_a-zA-Z]+[_a-zA-Z0-9-]*$/g
+function getScopes (object, isWithinPattern) {
+  const CSSClassNameRegExp = /^[_a-zA-Z]+[_a-zA-Z0-9-]*$/
+  const keys = new Set(Object.keys(object))
   let names = []
-  for (const key of Object.keys(object)) {
+  for (let key of keys) {
     const value = object[key]
     const type = Object.prototype.toString.apply(value)
-    if (type === '[object String]' && (key === 'scopeName' || (isPattern && key === 'name'))) {
+    const isScopeName = key === 'scopeName' || ((isWithinPattern || keys.has('match')) && key === 'name')
+    if (type === '[object String]' && isScopeName) {
       names = names.concat(value.split('.').filter(v => CSSClassNameRegExp.test(v)))
     } else if (type === '[object Array]' || type === '[object Object]') {
-      names = names.concat(
-        getScopes(value, isPattern || key === 'beginCaptures' || key === 'endCaptures' || key === 'patterns')
-      )
+      names = names.concat(getScopes(value, isWithinPattern || key === 'beginCaptures' || key === 'endCaptures' || key === 'patterns'))
     }
   }
   return names
