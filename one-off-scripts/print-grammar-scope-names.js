@@ -1,4 +1,4 @@
-'use strict'
+#!/usr/bin/env node
 
 const CSON = require('season')
 const fs = require('fs')
