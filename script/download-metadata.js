@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 const fs = require('fs')
-const path = require('path')
 const async = require('async')
 const request = require('request')
 const util = require('../lib/util')
@@ -15,7 +14,7 @@ let pageCount = null
 let nextPageURL = 'https://atom.io/api/packages?sort=downloads&order=desc&page=1'
 
 async.whilst(
-  (() => nextPageURL),
+  () => nextPageURL,
 
   (done) => {
     process.stdout.write(`Fetching ${nextPageURL}`)
@@ -58,6 +57,6 @@ async.whilst(
     }
 
     fs.writeFileSync(util.metadataPath, JSON.stringify(allPackages, null, 2))
-    console.log(`Wrote package metadata to ${util.metadataPath}`);
+    console.log(`Wrote package metadata to ${util.metadataPath}`)
   }
 )

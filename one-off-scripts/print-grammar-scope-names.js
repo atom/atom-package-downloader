@@ -19,7 +19,7 @@ for (const grammarPath of grammarPaths) {
   }
 }
 
-console.log('[');
+console.log('[')
 let currentRow = ' '
 for (let scope of Array.from(new Set(scopes)).sort()) {
   if (` ${currentRow}'${scope}',`.length > 80) {
